@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html>
+
+<style>
+
+@font-face {
+  font-family: "SundayMorning";
+  src: url("Sunday Morning.otf");
+}
+body, html {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+
+.birthdayimg {
+  background-image: url('Images/Hangyodon.png');
+  height: 100%;
+  background-position: center;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-color: #ffecf5;
+  position: relative;
+  color: red;
+  font-size: 35px;
+}
+
+.middle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  width: 90%;
+}
+
+@keyframes bounceIn {
+  0%   { transform: scale(0); opacity: 0; }
+  60%  { transform: scale(1.2); opacity: 1; }
+  80%  { transform: scale(0.9); }
+  100% { transform: scale(1); }
+}
+
+@keyframes rainbow {
+  0%   { color: #ff0055; text-shadow: 0 0 20px #ff0055; }
+  33%  { color: #ff8800; text-shadow: 0 0 20px #ff8800; }
+  66%  { color: #cc00ff; text-shadow: 0 0 20px #cc00ff; }
+  100% { color: #ff0055; text-shadow: 0 0 20px #ff0055; }
+}
+
+.birthday-active {
+  display: inline-block;
+  animation: bounceIn 0.8s ease forwards, rainbow 2s linear 0.8s infinite;
+  text-shadow: -2px -2px 0 black, 2px -2px 0 black, -2px 2px 0 black, 2px 2px 0 black;
+}
+
+.cards-container {
+  display: none;
+  justify-content: center;
+  gap: 24px;
+  margin-top: 30px;
+  flex-wrap: wrap;
+}
+
+.cards-container.visible {
+  display: flex;
+}
+
+@keyframes cardAppear {
+  0%   { transform: translateY(40px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+.card {
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 20px;
+  padding: 20px;
+  width: 160px;
+  text-align: center;
+  box-shadow: 0 8px 24px rgba(255, 100, 150, 0.3);
+  opacity: 0;
+  animation: cardAppear 0.6s ease forwards;
+  cursor: pointer;
+}
+
+.card:nth-child(1) { animation-delay: 0.2s; }
+.card:nth-child(2) { animation-delay: 0.5s; }
+
+.card-image {
+  width: 100%;
+  height: 120px;
+  background: linear-gradient(135deg, #ffb3cc, #ffd6e8);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40px;
+  margin-bottom: 14px;
+  overflow: hidden;
+}
+
+.card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+.play-btn {
+  background: linear-gradient(135deg, #ff6b9d, #ff9cc2);
+  border: none;
+  border-radius: 50px;
+  color: white;
+  font-size: 15px;
+  padding: 8px 20px;
+  cursor: pointer;
+  width: 100%;
+  transition: transform 0.15s, background 0.2s;
+}
+
+.play-btn:hover {
+  transform: scale(1.05);
+  background: linear-gradient(135deg, #ff4d8d, #ff80b0);
+}
+
+.play-btn:active {
+  transform: scale(0.97);
+}
+
+.play-btn.playing {
+  background: linear-gradient(135deg, #aa44cc, #cc66ee);
+}
+
+.card-label {
+  font-size: 13px;
+  color: #cc3366;
+  font-weight: bold;
+  margin-bottom: 10px;
+  font-family: sans-serif;
+}
+
+/* ===== VIEW BUTTON (Card 2) ===== */
+.view-btn {
+  background: linear-gradient(135deg, #ff6b9d, #ff9cc2);
+  border: none;
+  border-radius: 50px;
+  color: white;
+  font-size: 15px;
+  padding: 8px 20px;
+  cursor: pointer;
+  width: 100%;
+  transition: transform 0.15s, background 0.2s;
+}
+
+.view-btn:hover {
+  transform: scale(1.05);
+  background: linear-gradient(135deg, #ff4d8d, #ff80b0);
+}
+
+.view-btn:active {
+  transform: scale(0.97);
+}
+
+/* ===== VIDEO MODAL ===== */
+#videoModal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  z-index: 10000;
+  align-items: center;
+  justify-content: center;
+}
+
+#videoModal.visible {
+  display: flex;
+}
+
+.video-modal-inner {
+  position: relative;
+  background: #fff0f7;
+  border-radius: 24px;
+  padding: 44px 20px 20px 20px;
+  box-shadow: 0 16px 60px rgba(255, 100, 150, 0.5);
+  max-width: 90vw;
+  max-height: 90vh;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  animation: modalPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes modalPop {
+  0%   { transform: scale(0.6); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.video-modal-inner video {
+  max-width: 70vw;
+  max-height: 75vh;
+  border-radius: 16px;
+  display: block;
+}
+
+.modal-close-btn {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  background: rgba(255, 100, 150, 0.15);
+  border: none;
+  border-radius: 50%;
+  font-size: 18px;
+  line-height: 32px;
+  text-align: center;
+  cursor: pointer;
+  color: #cc3366;
+  transition: transform 0.15s, background 0.15s;
+  z-index: 1;
+}
+
+.modal-close-btn:hover {
+  transform: scale(1.15) rotate(10deg);
+  background: rgba(255, 100, 150, 0.3);
+}
+
+/* ===== MUSIC BUTTON ===== */
+
+@keyframes musicPulse {
+  0%, 100% { transform: scale(1); box-shadow: 0 4px 20px rgba(255, 100, 150, 0.5); }
+  50%       { transform: scale(1.08); box-shadow: 0 4px 30px rgba(255, 100, 150, 0.9); }
+}
+
+@keyframes fadeInBtn {
+  0%   { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+#musicBtn {
+  display: none;
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: none;
+  background: linear-gradient(135deg, #ff6b9d, #ff9cc2);
+  color: white;
+  font-size: 26px;
+  cursor: pointer;
+  z-index: 9999;
+  box-shadow: 0 4px 20px rgba(255, 100, 150, 0.5);
+  transition: background 0.3s;
+}
+
+#musicBtn.paused {
+  background: linear-gradient(135deg, #aaaaaa, #cccccc);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+#musicBtn:hover {
+  transform: scale(1.1);
+}
+
+#musicBtn.visible {
+  display: block;
+  animation: fadeInBtn 0.5s ease forwards, musicPulse 2s ease-in-out 0.5s infinite;
+}
+
+#musicBtn.visible.paused {
+  animation: none;
+}
+
+/* ===== ENVELOPE BUTTON ===== */
+
+#envelopeBtn {
+  display: none;
+  position: fixed;
+  bottom: 28px;
+  left: 28px;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: none;
+  background: linear-gradient(135deg, #ff6b9d, #ff9cc2);
+  color: white;
+  font-size: 28px;
+  cursor: pointer;
+  z-index: 9999;
+  box-shadow: 0 4px 20px rgba(255, 100, 150, 0.5);
+  transition: transform 0.2s, background 0.3s;
+}
+
+#envelopeBtn:hover {
+  transform: scale(1.1);
+}
+
+#envelopeBtn.visible {
+  display: block;
+  animation: fadeInBtn 0.5s ease forwards, musicPulse 2s ease-in-out 0.5s infinite;
+}
+
+/* ===== STOPMOTION MODAL ===== */
+
+#stopmotionModal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8);
+  z-index: 10000;
+  align-items: center;
+  justify-content: center;
+}
+
+#stopmotionModal.visible {
+  display: flex;
+}
+
+.stopmotion-inner {
+  position: relative;
+  background: #fff0f7;
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: 0 16px 60px rgba(255, 100, 150, 0.5);
+  max-width: 90vw;
+  max-height: 90vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: modalPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+#stopmotionImg {
+  width: auto;
+  height: auto;
+  max-width: 80vw;
+  max-height: 85vh;
+  border-radius: 16px;
+  display: block;
+  object-fit: contain;
+  transition: opacity 0.15s ease;
+}
+
+.stopmotion-close-btn {
+  position: absolute;
+  top: 10px;
+  right: 14px;
+  background: none;
+  border: none;
+  font-size: 26px;
+  cursor: pointer;
+  color: #cc3366;
+  line-height: 1;
+  transition: transform 0.15s;
+}
+
+.stopmotion-close-btn:hover {
+  transform: scale(1.2) rotate(10deg);
+}
+
+/* ===== PUSHEEN FLYING ===== */
+
+@keyframes pusheenFly {
+  0%   { bottom: -150px; right: -150px; opacity: 0; transform: scale(0.5); }
+  30%  { opacity: 1; }
+  100% { bottom: 40%; right: 2%; opacity: 1; transform: scale(1); }
+}
+
+@keyframes pusheenFloat {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-12px); }
+}
+
+#pusheenFlying {
+  display: none;
+  position: fixed;
+  width: 160px;
+  bottom: -150px;
+  right: -150px;
+  z-index: 500;
+  pointer-events: none;
+}
+
+#pusheenFlying.visible {
+  display: block;
+  animation: pusheenFly 2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+#pusheenFlying.floating {
+  display: block;
+  bottom: 40%;
+  right: 2%;
+  animation: pusheenFloat 3s ease-in-out infinite;
+}
+
+/* ===== CAT DANCING ===== */
+
+@keyframes catAppear {
+  0%   { opacity: 0; transform: translateY(30px) scale(0.7); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes catBounce {
+  0%, 100% { transform: scale(1) rotate(-3deg); }
+  50%       { transform: scale(1.05) rotate(3deg); }
+}
+
+#catDancing {
+  display: none;
+  position: fixed;
+  width: 130px;
+  bottom: 20px;
+  right: 120px;
+  z-index: 500;
+  pointer-events: none;
+}
+
+#catDancing.visible {
+  display: block;
+  animation: catAppear 0.6s ease forwards;
+}
+
+#catDancing.bouncing {
+  display: block;
+  bottom: 20px;
+  right: 120px;
+  animation: catBounce 0.6s ease-in-out infinite;
+}
+
+</style>
+
+<body>
+<div class="birthdayimg">
+  <div class="middle">
+    <p id="amx" style="font-size:80px; font-family: SundayMorning; text-shadow: -2px -2px 0 black, 2px -2px 0 black, -2px 2px 0 black, 2px 2px 0 black;"></p>
+
+    <div class="cards-container" id="cardsContainer">
+
+      <!-- Card 1 -->
+      <div class="card">
+        <div class="card-image">
+          🪼
+          <!-- <img src="Images/Mr.Fresh.png"> -->
+        </div>
+        <div class="card-label">水母</div>
+        <button class="play-btn" onclick="toggleAudio(this)">▶ Play</button>
+        <audio src="Lea.mp3"></audio>
+      </div>
+
+      <!-- Card 2 — Video -->
+      <div class="card">
+        <div class="card-image">
+          🚨
+        </div>
+        <div class="card-label">...</div>
+        <button class="view-btn" onclick="openVideoModal()">▶ View</button>
+      </div>
+
+
+    </div>
+  </div>
+</div>
+
+<!-- Pusheen flying in -->
+<img id="pusheenFlying" src="Images/pusheen-flying.gif" alt="Pusheen">
+
+<!-- Cat dancing at bottom -->
+<img id="catDancing" src="Images/cat_dancing.gif" alt="Dancing Cat">
+
+<!-- Birthday theme music -->
+<audio id="birthdayMusic" src="Happy_Birthday_Song.m4a" loop></audio>
+
+<!-- Floating music button -->
+<button id="musicBtn" onclick="toggleMusic()">🎵</button>
+
+<!-- Envelope button (bottom left) -->
+<button id="envelopeBtn" onclick="openStopmotion()">✉️</button>
+
+<!-- VIDEO MODAL -->
+<div id="videoModal">
+  <div class="video-modal-inner">
+    <button class="modal-close-btn" onclick="closeVideoModal()">✕</button>
+    <video id="modalVideo" controls autoplay>
+      <source src="....mov" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+  </div>
+</div>
+
+<!-- Paper noise sound -->
+<audio id="paperNoise" src="paper.mp3"></audio>
+
+<!-- STOPMOTION MODAL -->
+<div id="stopmotionModal">
+  <div class="stopmotion-inner">
+    <button class="stopmotion-close-btn" onclick="closeStopmotion()">✕</button>
+    <img id="stopmotionImg" src="" alt="Letter">
+  </div>
+</div>
+
+<script>
+var countDownDate = new Date("Mar 12, 2026 00:00:00").getTime();
+
+var countdownfunction = setInterval(function() {
+
+  var now = new Date().getTime();
+  var distance = countDownDate - now;
+
+  var days    = Math.floor(distance / (1000 * 60 * 60 * 24));
+  var hours   = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+  var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+  document.getElementById("amx").innerHTML = days + "D " + hours + "H "
+    + minutes + "M " + seconds + "S ";
+
+  if (distance < 0) {
+    clearInterval(countdownfunction);
+
+    // Step 1: Birthday message
+    var amx = document.getElementById("amx");
+    amx.innerHTML = "<span class='birthday-active'>HAPPY BIRTHDAY LEA 🎂</span>";
+
+    // Step 2: Pusheen flies in, then floats at middle right
+    setTimeout(function() {
+      var pusheen = document.getElementById("pusheenFlying");
+      pusheen.classList.add("visible");
+
+      pusheen.addEventListener("animationend", function() {
+        pusheen.style.bottom = "40%";
+        pusheen.style.right = "2%";
+        pusheen.classList.remove("visible");
+        pusheen.classList.add("floating");
+      }, { once: true });
+    }, 500);
+
+    // Step 3: Cat appears then bounces forever
+    setTimeout(function() {
+      var cat = document.getElementById("catDancing");
+      cat.classList.add("visible");
+    }, 1200);
+
+    // Step 4: Cards appear
+    setTimeout(function() {
+      document.getElementById("cardsContainer").classList.add("visible");
+    }, 2000);
+
+    // Step 5: Birthday music starts + envelope button appears
+    setTimeout(function() {
+      var music = document.getElementById("birthdayMusic");
+      var btn = document.getElementById("musicBtn");
+      btn.classList.add("visible");
+      music.play();
+
+      // Show envelope button
+      document.getElementById("envelopeBtn").classList.add("visible");
+    }, 500);
+  }
+
+}, 1000);
+
+/* ===== MUSIC ===== */
+function toggleMusic() {
+  var music = document.getElementById("birthdayMusic");
+  var btn = document.getElementById("musicBtn");
+
+  if (music.paused) {
+    music.play();
+    btn.innerHTML = "🎵";
+    btn.classList.remove("paused");
+  } else {
+    music.pause();
+    btn.innerHTML = "⏸";
+    btn.classList.add("paused");
+  }
+}
+
+/* ===== AUDIO CARDS ===== */
+function toggleAudio(btn) {
+  var audio = btn.nextElementSibling;
+
+  document.querySelectorAll("audio").forEach(function(a) {
+    if (a !== audio) {
+      a.pause();
+      a.currentTime = 0;
+    }
+  });
+  document.querySelectorAll(".play-btn").forEach(function(b) {
+    if (b !== btn) {
+      b.innerHTML = "▶ Play";
+      b.classList.remove("playing");
+    }
+  });
+
+  if (audio.paused) {
+    audio.play();
+    btn.innerHTML = "⏸ Pause";
+    btn.classList.add("playing");
+    audio.onended = function() {
+      btn.innerHTML = "▶ Play";
+      btn.classList.remove("playing");
+    };
+  } else {
+    audio.pause();
+    btn.innerHTML = "▶ Play";
+    btn.classList.remove("playing");
+  }
+}
+
+/* ===== VIDEO MODAL ===== */
+function openVideoModal() {
+  var modal = document.getElementById("videoModal");
+  var video = document.getElementById("modalVideo");
+  modal.classList.add("visible");
+  video.load();
+  video.play();
+}
+
+function closeVideoModal() {
+  var modal = document.getElementById("videoModal");
+  var video = document.getElementById("modalVideo");
+  modal.classList.remove("visible");
+  video.pause();
+  video.currentTime = 0;
+}
+
+// Close video modal on backdrop click
+document.getElementById("videoModal").addEventListener("click", function(e) {
+  if (e.target === this) closeVideoModal();
+});
+
+/* ===== STOPMOTION MODAL ===== */
+var stopmotionFrames = [
+  "Images/letter_01.png",
+  "Images/letter_02.png",
+  "Images/letter_03.png"
+];
+var stopmotionIndex = 0;
+var stopmotionTimer = null;
+
+function openStopmotion() {
+  stopmotionIndex = 0;
+  var img = document.getElementById("stopmotionImg");
+  img.src = stopmotionFrames[0];
+  document.getElementById("stopmotionModal").classList.add("visible");
+
+  // Play paper noise
+  var paper = document.getElementById("paperNoise");
+  paper.currentTime = 0;
+  paper.play();
+
+  // Play through frames: 400ms per frame, stop at last
+  stopmotionTimer = setInterval(function() {
+    stopmotionIndex++;
+    if (stopmotionIndex >= stopmotionFrames.length) {
+      clearInterval(stopmotionTimer);
+      stopmotionTimer = null;
+      return;
+    }
+    var img = document.getElementById("stopmotionImg");
+    img.style.opacity = 0;
+    setTimeout(function() {
+      img.src = stopmotionFrames[stopmotionIndex];
+      img.style.opacity = 1;
+    }, 100);
+  }, 400);
+}
+
+function closeStopmotion() {
+  if (stopmotionTimer) {
+    clearInterval(stopmotionTimer);
+    stopmotionTimer = null;
+  }
+  document.getElementById("stopmotionModal").classList.remove("visible");
+  document.getElementById("stopmotionImg").src = "";
+}
+
+// Close stopmotion on backdrop click
+document.getElementById("stopmotionModal").addEventListener("click", function(e) {
+  if (e.target === this) closeStopmotion();
+});
+</script>
+
+</body>
+</html>
